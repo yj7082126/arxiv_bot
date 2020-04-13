@@ -61,7 +61,7 @@ class ArxivParser:
         blocks = [result_dict, divider_block]
         
         for i, val in enumerate(self.info):
-            if i < 10:
+            if i < 3:
                 row, row2 = self.convert_value(val)
                 if row != {}:
                     if is_compact:
@@ -119,8 +119,8 @@ class ArxivParser:
         paper_summary = val.summary.text
         paper_summary = ". ".join(paper_summary.split('. ')[:3]).replace("\n", " ").strip()
         
-        is_accepted = len(re.findall("[A-Z][A-Z]", paper_comment)) > 0 or \
-            len(re.findall("Accepted", paper_comment)) > 0
+        #is_accepted = len(re.findall("[A-Z][A-Z]", paper_comment)) > 0 or len(re.findall("Accepted|Submitted", paper_comment)) > 0
+        is_accepted = True
         
         if is_accepted:
             result['type'] = "section"
