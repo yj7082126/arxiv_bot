@@ -14,11 +14,12 @@ slack_events_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING_SECRET'], "/s
 slack_web_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
 
 #%%
-def send_arxiv(user_id, channel, categories = ["cs.CL", "cs.CV"], keywords = [], is_compact = False):
+def send_arxiv(user_id, channel, categories = ["cs.CL", "cs.CV"], 
+               keywords = [], conferences = [], is_compact = False):
     arxivParser = ArxivParser(channel)
     if len(categories) == 0:
         categories = ["cs.CL", "cs.CV"]
-    arxivParser.parse_from_arxiv(categories, keywords)
+    arxivParser.parse_from_arxiv(categories, keywords, conferences)
     message = arxivParser.create_json(is_compact)
     response = slack_web_client.chat_postMessage(**message)
     assert response["ok"]
@@ -44,13 +45,15 @@ def message(payload):
                           if "." in y and y[re.search("\.", y).start()-1].islower() 
                           and y[re.search("\.", y).start()+1].isupper()]
             keywords = [y for y in text[1:] if y.islower()]
-            return send_arxiv(user_id, channel_id, categories, keywords, False)
+            conferences = [y for y in text[1:] if y.isupper()]
+            return send_arxiv(user_id, channel_id, categories, keywords, conferences, False)
         elif text[0] == "compact_search":
             categories = [y for y in text[1:] 
                           if "." in y and y[re.search("\.", y).start()-1].islower() 
                           and y[re.search("\.", y).start()+1].isupper()]
             keywords = [y for y in text[1:] if y.islower()]
-            return send_arxiv(user_id, channel_id, categories, keywords, True)
+            conferences = [y for y in text[1:] if y.isupper()]
+            return send_arxiv(user_id, channel_id, categories, keywords, conferences, True)
         elif text[0] == "help":
             return send_help(user_id, channel_id)
 

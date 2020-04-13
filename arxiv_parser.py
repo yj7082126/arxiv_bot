@@ -12,7 +12,6 @@ class ArxivParser:
         self.username = "arxiv_bot"
         self.timestamp = ""
         
-        self.max_results = 50
         self.base_url = "http://export.arxiv.org/api/query?search_query="
  
     def create_help_message(self):
@@ -33,13 +32,16 @@ class ArxivParser:
             "blocks": blocks,
         }
     
-    def parse_from_arxiv(self, search_categories, search_keywords):
+    def parse_from_arxiv(self, search_categories, search_keywords, search_conferences):
         self.parse_url = self.base_url
-        self.parse_url += "+OR+".join(["cat:" + x for x in search_categories])
+        self.parse_url += ("%28" + "+OR+".join(["cat:" + x for x in search_categories]) + "%29")
         if len(search_keywords) > 0:
             self.parse_url += "+AND+"
-            self.parse_url += "+OR+".join(["abs:" + x for x in search_keywords])
-        self.parse_url += "&start=0&max_results=%d"%(self.max_results)
+            self.parse_url += ("%28" + "+OR+".join(["abs:" + x for x in search_keywords]) + "%29")
+        if len(search_conferences) > 0:
+            self.parse_url += "+AND+"
+            self.parse_url += ("%28" + "+OR+".join(["co:" + x for x in search_conferences]) + "%29")    
+        self.parse_url += "&start=0&max_results=50"
         self.parse_url += "&sortBy=lastUpdatedDate&sortOrder=descending"
         
         content = urlopen(self.parse_url)
@@ -60,8 +62,13 @@ class ArxivParser:
         divider_block = {"type":"divider"}
         blocks = [result_dict, divider_block]
         
+        if is_compact:
+            max_results = 10
+        else:
+            max_results = 5
+            
         for i, val in enumerate(self.info):
-            if i < 3:
+            if i < max_results:
                 row, row2 = self.convert_value(val)
                 if row != {}:
                     if is_compact:
@@ -77,19 +84,9 @@ class ArxivParser:
         }
     
     def parse_from_arxiv_df(self):
-        parse_url = self.base_url
-        parse_url += "+OR+".join(["cat:" + x for x in self.search_categories])
-        parse_url += "&start=0&max_results=%d"%(self.max_results)
-        parse_url += "&sortBy=lastUpdatedDate&sortOrder=descending"
-        
-        content = urlopen(parse_url)
-        text = content.read().decode(content.headers.get_content_charset())
-        soup = BeautifulSoup(text, "html.parser")
-        info = soup.find_all('entry')
-
         df = pd.DataFrame(columns = ["Id", "Title", "Updated", "Published", 
                                      "Authors", "Categories", "Comment", "Summary"])        
-        for i, val in enumerate(info):
+        for i, val in enumerate(self.info):
             df.loc[i] = self.convert_value_df(val)
             
         return df
