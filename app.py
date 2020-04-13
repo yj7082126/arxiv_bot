@@ -13,10 +13,16 @@ slack_events_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING_SECRET'], "/s
 slack_web_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
 
 #%%
-def send_arxiv(user_id: str, channel: str):
+def send_arxiv(user_id, channel):
     arxivParser = ArxivParser(channel)
     arxivParser.parse_from_arxiv()
     message = arxivParser.create_json()
+    response = slack_web_client.chat_postMessage(**message)
+    assert response["ok"]
+    
+def send_help(user_id, channel):
+    arxivParser = ArxivParser(channel)
+    message = arxivParser.create_help_message()
     response = slack_web_client.chat_postMessage(**message)
     assert response["ok"]
 
@@ -28,8 +34,11 @@ def message(payload):
     user_id = event.get("user")
     text = event.get("text")
 
-    if text and text.lower() == "search":
-        return send_arxiv(user_id, channel_id)
+    if text:
+        if text.lower() == "search":
+            return send_arxiv(user_id, channel_id)
+        elif text.lower == "help":
+            return send_help(user_id, channel_id)
 
 if __name__ == "__main__":
     ssl_context = ssl_lib.create_default_context(cafile=certifi.where())

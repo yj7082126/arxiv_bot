@@ -7,15 +7,34 @@ from urllib.request import urlopen
 
 class ArxivParser:
     
-    def __init__(self, channel, search_categories = ["cs.CV", "cs.LG"], search_date = "2020-04-09"):
+    def __init__(self, channel, 
+                 search_categories = ["cs.CV", "cs.LG"], search_date = "2020-04-09"):
         self.channel = channel
         self.username = "arxiv_bot"
         self.timestamp = ""
+        
         self.search_categories = search_categories
         self.search_date = datetime.strptime(search_date, "%Y-%m-%d")
         self.max_results = 20
         self.base_url = "http://export.arxiv.org/api/query?search_query="
-        
+ 
+    def create_help_message(self):
+        result_dict = {
+        	"blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "아카이브 (arxiv) 문서 검색용 앱. 카테고리, 컨퍼런스, 키워드 검색 및 일일 신규 논문 정리."
+                }
+            },
+            {
+                "type": "divider"
+            }
+            ]
+        }
+        return result_dict
+    
     def parse_from_arxiv(self):
         parse_url = self.base_url
         parse_url += "+OR+".join(["cat:" + x for x in self.search_categories])
@@ -34,7 +53,7 @@ class ArxivParser:
 				"type": "mrkdwn",
 				"text": "We found *%d papers* in arxiv from *%s to %s*" %(
                     len(self.info), 
-                    datetime.strftime(datetime(2020, 4, 9), "%Y-%m-%d"),
+                    datetime.strftime(self.search_date, "%Y-%m-%d"),
                     datetime.strftime(datetime(2020, 4, 10), "%Y-%m-%d")
                 )
 			}
