@@ -138,10 +138,5 @@ class ArxivParser:
         row = [paper_id, paper_title, paper_updated, paper_published, paper_authors,
                paper_categories, paper_comment, paper_summary]
         return row
-        
-#%%
-ap = ArxivParser(3300)
-ap.parse_from_arxiv()
-result = ap.create_json()
 
 #%%
