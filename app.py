@@ -35,9 +35,10 @@ def message(payload):
     text = event.get("text")
 
     if text:
-        if text.lower() == "search":
+        text = [x.lower() for x in text.split()]
+        if text[0] == "search":
             return send_arxiv(user_id, channel_id)
-        elif text.lower == "help":
+        elif text[0] == "help":
             return send_help(user_id, channel_id)
 
 if __name__ == "__main__":
