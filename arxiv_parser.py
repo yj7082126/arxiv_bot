@@ -7,15 +7,12 @@ from urllib.request import urlopen
 
 class ArxivParser:
     
-    def __init__(self, channel, 
-                 search_categories = ["cs.CV", "cs.LG"], search_date = "2020-04-09"):
+    def __init__(self, channel):
         self.channel = channel
         self.username = "arxiv_bot"
         self.timestamp = ""
         
-        self.search_categories = search_categories
-        self.search_date = datetime.strptime(search_date, "%Y-%m-%d")
-        self.max_results = 20
+        self.max_results = 50
         self.base_url = "http://export.arxiv.org/api/query?search_query="
  
     def create_help_message(self):
@@ -24,7 +21,7 @@ class ArxivParser:
              "text": {
                  "type": "mrkdwn",
                  "text": "아카이브 (arxiv) 문서 검색용 앱. 카테고리, 컨퍼런스, 키워드 검색 및 일일 신규 논문 정리."
-                 }
+              }
             },
             {"type": "divider"}
         ]
@@ -36,9 +33,12 @@ class ArxivParser:
             "blocks": blocks,
         }
     
-    def parse_from_arxiv(self):
+    def parse_from_arxiv(self, search_categories, search_keywords):
         parse_url = self.base_url
-        parse_url += "+OR+".join(["cat:" + x for x in self.search_categories])
+        parse_url += "+OR+".join(["cat:" + x for x in search_categories])
+        if len(self.search_keywords) > 0:
+            parse_url += "+"
+            parse_url += "+OR+".join(["abs:" + x for x in search_keywords])
         parse_url += "&start=0&max_results=%d"%(self.max_results)
         parse_url += "&sortBy=lastUpdatedDate&sortOrder=descending"
         
@@ -47,15 +47,13 @@ class ArxivParser:
         soup = BeautifulSoup(text, "html.parser")
         self.info = soup.find_all('entry')
         
-    def create_json(self):
+    def create_json(self, is_compact = False):
         result_dict = {
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "We found *%d papers* in arxiv from *%s to %s*" %(
-                    len(self.info), 
-                    datetime.strftime(self.search_date, "%Y-%m-%d"),
-                    datetime.strftime(datetime(2020, 4, 10), "%Y-%m-%d")
+				"text": "We found *%d papers* in arxiv" %(
+                    len(self.info)
                 )
 			}
 		}
@@ -66,7 +64,10 @@ class ArxivParser:
             if i < 10:
                 row, row2 = self.convert_value(val)
                 if row != {}:
-                    blocks.extend([row, row2, divider_block])
+                    if is_compact:
+                        blocks.extend([row, divider_block])
+                    else:
+                        blocks.extend([row, row2, divider_block])
 
         return {
             "ts": self.timestamp,
