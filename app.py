@@ -16,6 +16,8 @@ slack_web_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
 #%%
 def send_arxiv(user_id, channel, categories = ["cs.CL", "cs.CV"], keywords = [], is_compact = False):
     arxivParser = ArxivParser(channel)
+    if len(categories) == 0:
+        categories = ["cs.CL", "cs.CV"]
     arxivParser.parse_from_arxiv(categories, keywords)
     message = arxivParser.create_json(is_compact)
     response = slack_web_client.chat_postMessage(**message)
