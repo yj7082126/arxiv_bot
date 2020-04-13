@@ -19,21 +19,22 @@ class ArxivParser:
         self.base_url = "http://export.arxiv.org/api/query?search_query="
  
     def create_help_message(self):
-        result_dict = {
-        	"blocks": [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "아카이브 (arxiv) 문서 검색용 앱. 카테고리, 컨퍼런스, 키워드 검색 및 일일 신규 논문 정리."
-                }
+        blocks =  [
+            {"type": "section",
+             "text": {
+                 "type": "mrkdwn",
+                 "text": "아카이브 (arxiv) 문서 검색용 앱. 카테고리, 컨퍼런스, 키워드 검색 및 일일 신규 논문 정리."
+                 }
             },
-            {
-                "type": "divider"
-            }
-            ]
+            {"type": "divider"}
+        ]
+        
+        return {
+            "ts": self.timestamp,
+            "channel": self.channel,
+            "username": self.username,
+            "blocks": blocks,
         }
-        return result_dict
     
     def parse_from_arxiv(self):
         parse_url = self.base_url
