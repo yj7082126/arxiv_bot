@@ -34,15 +34,15 @@ class ArxivParser:
         }
     
     def parse_from_arxiv(self, search_categories, search_keywords):
-        parse_url = self.base_url
-        parse_url += "+OR+".join(["cat:" + x for x in search_categories])
-        if len(self.search_keywords) > 0:
-            parse_url += "+"
-            parse_url += "+OR+".join(["abs:" + x for x in search_keywords])
-        parse_url += "&start=0&max_results=%d"%(self.max_results)
-        parse_url += "&sortBy=lastUpdatedDate&sortOrder=descending"
+        self.parse_url = self.base_url
+        self.parse_url += "+OR+".join(["cat:" + x for x in search_categories])
+        if len(search_keywords) > 0:
+            self.parse_url += "+AND+"
+            self.parse_url += "+OR+".join(["abs:" + x for x in search_keywords])
+        self.parse_url += "&start=0&max_results=%d"%(self.max_results)
+        self.parse_url += "&sortBy=lastUpdatedDate&sortOrder=descending"
         
-        content = urlopen(parse_url)
+        content = urlopen(self.parse_url)
         text = content.read().decode(content.headers.get_content_charset())
         soup = BeautifulSoup(text, "html.parser")
         self.info = soup.find_all('entry')
