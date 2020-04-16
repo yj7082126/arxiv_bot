@@ -17,7 +17,7 @@ slack_web_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
 def send_arxiv(user_id, channel, categories = ["cs.CL", "cs.CV"],
                keywords = [], conferences = [], is_compact = False,
                max_results = 5):
-    arxivParser = ArxivParser(channel)
+    arxivParser = ArxivParser(channel, is_compact)
     if len(categories) == 0:
         categories = ["cs.CL", "cs.CV"]
     else:
@@ -29,7 +29,7 @@ def send_arxiv(user_id, channel, categories = ["cs.CL", "cs.CV"],
         max_results = max_results[0]
 
     arxivParser.parse_from_arxiv(categories, keywords, conferences)
-    message = arxivParser.create_json(is_compact, max_results)
+    message = arxivParser.create_json(max_results)
     response = slack_web_client.chat_postMessage(**message)
     assert response["ok"]
 

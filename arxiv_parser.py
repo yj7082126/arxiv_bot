@@ -7,11 +7,11 @@ from urllib.request import urlopen
 
 class ArxivParser:
 
-    def __init__(self, channel):
+    def __init__(self, channel, is_compact):
         self.channel = channel
         self.username = "arxiv_bot"
         self.timestamp = ""
-
+        self.is_compact = is_compact
         self.base_url = "http://export.arxiv.org/api/query?search_query="
 
     def create_help_message(self):
@@ -50,7 +50,7 @@ class ArxivParser:
         soup = BeautifulSoup(text, "html.parser")
         self.info = soup.find_all('entry')
 
-    def create_json(self, is_compact = False, max_results = 5):
+    def create_json(self, max_results = 5):
         divider_block = {"type":"divider"}
         blocks = [divider_block]
 
@@ -58,7 +58,7 @@ class ArxivParser:
             if i < max_results:
                 row, row2 = self.convert_value(val)
                 if row != {}:
-                    if is_compact:
+                    if self.is_compact:
                         blocks.extend([row, divider_block])
                     else:
                         blocks.extend([row, row2, divider_block])
@@ -104,9 +104,16 @@ class ArxivParser:
         paper_summary = ". ".join(paper_summary.split('. ')[:3]).replace("\n", " ").strip()
 
         #is_accepted = len(re.findall("[A-Z][A-Z]", paper_comment)) > 0 or len(re.findall("Accepted|Submitted", paper_comment)) > 0
-        is_accepted = True
 
-        if is_accepted:
+        if self.is_compact:
+            result['type'] = "section"
+            result['text'] = {"type": "mrkdwn", "text": paper_title}
+            result['fields'] = [
+                {"type": "mrkdwn", "text": "*Category*"},
+                {"type": "mrkdwn", "text": " "},
+                {"type": "mrkdwn", "text": paper_categories}
+            ]
+        else:
             result['type'] = "section"
             result['text'] = {"type": "mrkdwn", "text": paper_title}
             result['fields'] = [
@@ -119,8 +126,8 @@ class ArxivParser:
                 {"type": "mrkdwn", "text": paper_categories}
             ]
 
-            result2["type"] = "section"
-            result2['text'] = {"type": "mrkdwn", "text": paper_summary}
+        result2["type"] = "section"
+        result2['text'] = {"type": "mrkdwn", "text": paper_summary}
 
         return result, result2
 

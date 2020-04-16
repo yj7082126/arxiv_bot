@@ -1,11 +1,6 @@
+#!/usr/bin/python3.6
 import os
-import re
-import logging
-from flask import Flask
 from slack import WebClient
-from slackeventsapi import SlackEventAdapter
-import ssl as ssl_lib
-import certifi
 from arxiv_parser import ArxivParser
 
 #%%
