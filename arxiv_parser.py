@@ -33,7 +33,6 @@ class ArxivParser:
         }
 
     def parse_from_arxiv(self, search_categories, search_keywords, search_conferences):
-        print(search_categories)
         self.parse_url = self.base_url
         self.parse_url += ("%28" + "+OR+".join(["cat:" + x for x in search_categories]) + "%29")
         if len(search_keywords) > 0:

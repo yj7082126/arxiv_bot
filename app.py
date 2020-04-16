@@ -46,7 +46,6 @@ def message(payload):
     channel_id = event.get("channel")
     user_id = event.get("user")
     text = event.get("text")
-    print(text)
     if text:
         text = text.split()
         if text[0] == "help":
