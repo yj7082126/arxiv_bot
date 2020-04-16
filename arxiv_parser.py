@@ -42,25 +42,17 @@ class ArxivParser:
             self.parse_url += "+AND+"
             self.parse_url += ("%28" + "+OR+".join(["co:" + x for x in search_conferences]) + "%29")    
         self.parse_url += "&start=0&max_results=50"
-        self.parse_url += "&sortBy=lastUpdatedDate&sortOrder=descending"
+        self.parse_url += "&sortBy=lastPublishedDate&sortOrder=descending"
         
+        print(self.parse_url)
         content = urlopen(self.parse_url)
         text = content.read().decode(content.headers.get_content_charset())
         soup = BeautifulSoup(text, "html.parser")
         self.info = soup.find_all('entry')
         
     def create_json(self, is_compact = False, max_results = 5):
-        result_dict = {
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "We found *%d papers* in arxiv" %(
-                    len(self.info)
-                )
-			}
-		}
         divider_block = {"type":"divider"}
-        blocks = [result_dict, divider_block]
+        blocks = [divider_block]
             
         for i, val in enumerate(self.info):
             if i < max_results:

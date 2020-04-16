@@ -48,7 +48,7 @@ def message(payload):
         text = text.split()
         if text[0] == "help":
             return send_help(user_id, channel_id)
-        else:
+        elif ((text[0] == "search") or (text[0] == "compact_search")):
             categories = [y for y in text[1:] 
                           if "." in y and y[re.search("\.", y).start()-1].islower() 
                           and y[re.search("\.", y).start()+1].isupper()]
