@@ -49,7 +49,7 @@ class ArxivParser:
         soup = BeautifulSoup(text, "html.parser")
         self.info = soup.find_all('entry')
         
-    def create_json(self, is_compact = False):
+    def create_json(self, is_compact = False, max_results = 5):
         result_dict = {
 			"type": "section",
 			"text": {
@@ -61,11 +61,6 @@ class ArxivParser:
 		}
         divider_block = {"type":"divider"}
         blocks = [result_dict, divider_block]
-        
-        if is_compact:
-            max_results = 10
-        else:
-            max_results = 5
             
         for i, val in enumerate(self.info):
             if i < max_results:
