@@ -49,8 +49,8 @@ def message(payload):
         if text[0] == "help":
             return send_help(user_id, channel_id)
         elif ((text[0] == "search") or (text[0] == "compact_search")):
-            categories = [y for y in text[1:] 
-                          if "." in y and y[re.search("\.", y).start()-1].islower() 
+            categories = [y for y in text[1:] if "." in y]
+            categories = [y for y in categories if y[re.search("\.", y).start()-1].islower() 
                           and y[re.search("\.", y).start()+1].isupper()]
             keywords = [y for y in text[1:] if y.islower()]
             conferences = [y for y in text[1:] if y.isupper()]
