@@ -24,8 +24,9 @@ def send_arxiv(user_id, channel, categories = ["cs.CL", "cs.CV"],
         max_results = 5
     else:
         max_results = max_results[0]
+        
     arxivParser.parse_from_arxiv(categories, keywords, conferences)
-    message = arxivParser.create_json(is_compact)
+    message = arxivParser.create_json(is_compact, max_results)
     response = slack_web_client.chat_postMessage(**message)
     assert response["ok"]
     
