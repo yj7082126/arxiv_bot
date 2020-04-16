@@ -1,5 +1,0 @@
-export SLACK_SIGNING_SECRET="1ad8d6b33c32f161bfe954c6587e4350"
-export SLACK_BOT_TOKEN="xoxb-71581215297-1078958799105-Z43ON0b75zfTmBSHoidlwrbP"
-export CHANNEL_ID="C011PJH05JR"
-
-python3.6 /home/yj7082126/arxiv_bot/scheduled_task.py
