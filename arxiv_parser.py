@@ -15,15 +15,92 @@ class ArxivParser:
         self.base_url = "http://export.arxiv.org/api/query?search_query="
 
     def create_help_message(self):
+        print("Creating help message")
         blocks =  [
-            {"type": "section",
-             "text": {
-                 "type": "mrkdwn",
-                 "text": "아카이브 (arxiv) 문서 검색용 앱. 카테고리, 컨퍼런스, 키워드 검색 및 일일 신규 논문 정리."
-              }
-            },
-            {"type": "divider"}
-        ]
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "아카이브 (arxiv) 문서 검색용 앱. 카테고리, 컨퍼런스, 키워드 검색 및 일일 신규 논문 정리."
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*사용 예시*"
+			},
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "help \n compact_search tacotron 3 \n search facial cs.CV 5 \n compact_search cs.CV cs.CL CVPR"
+				}
+			]
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": """
+*설명* \n\n\n해당 봇은 help, search, compact_search의 키워드로 시작되는 메세지에 반응하여,
+arxiv api를 사용하여 논문 검색 결과를 채널에 포스팅합니다.
+해당 봇은 매일 9:30AM에 사전에 입력된 키워드에 따라 검색된 결과를 보여줍니다.
+해당 봇을 사용하실 때, *첫번째 단어를 제외한 문자 배열은 의미가 없습니다.*
+\t(예시: compact_search tacotron 3 = compact_search 3 tacotron)
+				"""
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": """
+*명령어*\n\n\n메세지의 첫번째 단어가 명령어가 되며, 다음의 3 단어만 인식됩니다.
+*help*: 도움!
+*search*: 각 논문의 모든 parameter들을 보여줍니다.
+*compact_search*: 논문의 제목과 카테고리만 보여줍니다.
+				"""
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": """
+*파라미터*\n\n\n메세지의 두번째 단어들부터 명령어가 됩니다.
+*키워드*: 모든 영문 lowercase 단어들은 키워드로 인식되며, paper abstract 에 해당 키워드가 있는지 검색합니다.
+\t이때 복수의 키워드가 있으면 AND 검색.
+*컨퍼런스*: 모든 영문 uppercase 단어들은 컨퍼런스로 인식되며, paper comment에 해당 컨퍼런스가 있는지 검색합니다.
+\t이때 복수의 컨퍼런스가 있으면 AND 검색.
+*카테고리*: 모든 단어들 중 사이에 온점이 있으며, 그 전에 글자가 lowercase이고 이후 글자가 uppercase이면 arxiv category로 인식됩니다.
+\t이때 복수의 카테고리가 있으면 OR 검색.
+*숫자*: 모든 단어들 중 숫자는 검색 결과의 최대 기록수가 됩니다. 맨 첫 숫자만 사용됩니다.
+				"""
+			}
+		},
+		{
+			"type": "divider"
+		},
+        {
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*향후 추가 예정*\n\n\n관심 논문 즐겨찾기 기능\nOCR"
+			}
+		}
+	]
 
         return {
             "ts": self.timestamp,

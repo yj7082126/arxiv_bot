@@ -34,7 +34,7 @@ def send_arxiv(user_id, channel, categories = ["cs.CL", "cs.CV"],
     assert response["ok"]
 
 def send_help(user_id, channel):
-    arxivParser = ArxivParser(channel)
+    arxivParser = ArxivParser(channel, False)
     message = arxivParser.create_help_message()
     response = slack_web_client.chat_postMessage(**message)
     assert response["ok"]
@@ -46,6 +46,9 @@ def message(payload):
     channel_id = event.get("channel")
     user_id = event.get("user")
     text = event.get("text")
+
+    print('Channel_id: %s'%(channel_id))
+
     if text:
         text = text.split()
         if text[0] == "help":
