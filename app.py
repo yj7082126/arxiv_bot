@@ -15,7 +15,8 @@ slack_web_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
 
 #%%
 def send_arxiv(user_id, channel, categories = ["cs.CL", "cs.CV"],
-               keywords = [], conferences = [], is_compact = False,
+               keywords_or = [], keywords_and = [],
+               conferences = [], is_compact = False,
                max_results = 5):
     arxivParser = ArxivParser(channel, is_compact)
     if len(categories) == 0:
@@ -28,7 +29,7 @@ def send_arxiv(user_id, channel, categories = ["cs.CL", "cs.CV"],
     else:
         max_results = max_results[0]
 
-    arxivParser.parse_from_arxiv(categories, keywords, conferences, keywords_or=True)
+    arxivParser.parse_from_arxiv(categories, keywords_or, keywords_and, conferences)
     message = arxivParser.create_json(max_results)
     response = slack_web_client.chat_postMessage(**message)
     assert response["ok"]
@@ -58,13 +59,16 @@ def message(payload):
             categories = [y.split('|')[1][:-1] if "|" in y else y for y in categories]
             categories = [y for y in categories if y[re.search("\.", y).start()-1].islower()
                           and y[re.search("\.", y).start()+1].isupper()]
-            keywords = [y for y in text[1:] if y.islower()]
+
+            keywords = " ".join([y for y in text[1:] if y.islower()])
+            keywords_and = keywords[keywords.find("(")+1:keywords.find(")")].split()
+            keywords_or = keywords[:keywords.find("(")].split() + keywords[keywords.find(")")+1:].split()
             conferences = [y for y in text[1:] if y.isupper()]
             is_compact = False if text[0] == "search" else True
             max_results = [int(y) for y in text[1:] if y.isnumeric()]
 
-            return send_arxiv(user_id, channel_id, categories, keywords,
-                              conferences, is_compact, max_results)
+            return send_arxiv(user_id, channel_id, categories, keywords_or,
+                              keywords_and, conferences, is_compact, max_results)
 
 if __name__ == "__main__":
     ssl_context = ssl_lib.create_default_context(cafile=certifi.where())

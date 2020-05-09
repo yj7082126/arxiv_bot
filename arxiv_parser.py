@@ -109,21 +109,23 @@ arxiv api를 사용하여 논문 검색 결과를 채널에 포스팅합니다.
             "blocks": blocks,
         }
 
-    def parse_from_arxiv(self, search_categories, search_keywords, search_conferences,
-                         keywords_or = True):
+
+    def parse_from_arxiv(self, search_categories, search_keywords_or,
+                         search_keywords_and, search_conferences):
         self.parse_url = self.base_url
         self.parse_url += ("%28" + "+OR+".join(["cat:" + x for x in search_categories]) + "%29")
-        if len(search_keywords) > 0:
+        if len(search_keywords_or) > 0:
             self.parse_url += "+AND+"
-            if keywords_or:
-                self.parse_url += ("%28" + "+OR+".join(["abs:" + x for x in search_keywords]) + "%29")
-            else:
-                self.parse_url += ("%28" + "+AND+".join(["abs:" + x for x in search_keywords]) + "%29")
+            self.parse_url += ("%28" + "+OR+".join(["abs:" + x for x in search_keywords_or]) + "%29")
+        if len(search_keywords_and) > 0:
+            self.parse_url += "+AND+"
+            self.parse_url += ("%28" + "+AND+".join(["abs:" + x for x in search_keywords_or]) + "%29")
         if len(search_conferences) > 0:
             self.parse_url += "+AND+"
             self.parse_url += ("%28" + "+OR+".join(["co:" + x for x in search_conferences]) + "%29")
         self.parse_url += "&start=0&max_results=50"
         self.parse_url += "&sortBy=submittedDate&sortOrder=descending"
+
 
         print(self.parse_url)
         content = urlopen(self.parse_url)
