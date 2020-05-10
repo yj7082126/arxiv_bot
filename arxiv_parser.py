@@ -119,7 +119,7 @@ arxiv api를 사용하여 논문 검색 결과를 채널에 포스팅합니다.
             self.parse_url += ("%28" + "+OR+".join(["abs:" + x for x in search_keywords_or]) + "%29")
         if len(search_keywords_and) > 0:
             self.parse_url += "+AND+"
-            self.parse_url += ("%28" + "+AND+".join(["abs:" + x for x in search_keywords_or]) + "%29")
+            self.parse_url += ("%28" + "+AND+".join(["abs:" + x for x in search_keywords_and]) + "%29")
         if len(search_conferences) > 0:
             self.parse_url += "+AND+"
             self.parse_url += ("%28" + "+OR+".join(["co:" + x for x in search_conferences]) + "%29")
@@ -188,26 +188,26 @@ arxiv api를 사용하여 논문 검색 결과를 채널에 포스팅합니다.
 
         #is_accepted = len(re.findall("[A-Z][A-Z]", paper_comment)) > 0 or len(re.findall("Accepted|Submitted", paper_comment)) > 0
 
-        if self.is_compact:
-            result['type'] = "section"
-            result['text'] = {"type": "mrkdwn", "text": paper_title}
-            result['fields'] = [
-                {"type": "mrkdwn", "text": "*Category*"},
-                {"type": "mrkdwn", "text": " "},
-                {"type": "mrkdwn", "text": paper_categories}
-            ]
-        else:
-            result['type'] = "section"
-            result['text'] = {"type": "mrkdwn", "text": paper_title}
-            result['fields'] = [
-                {"type": "mrkdwn", "text": "*Date*"},
-                {"type": "mrkdwn", "text": "*Authors*"},
-                {"type": "mrkdwn", "text": paper_date},
-                {"type": "mrkdwn", "text": paper_authors},
-                {"type": "mrkdwn", "text": "*Category*"},
-                {"type": "mrkdwn", "text": " "},
-                {"type": "mrkdwn", "text": paper_categories}
-            ]
+        # if self.is_compact:
+        #    result['type'] = "section"
+        #    result['text'] = {"type": "mrkdwn", "text": paper_title}
+        #    result['fields'] = [
+        #        {"type": "mrkdwn", "text": "*Category*"},
+        #        {"type": "mrkdwn", "text": " "},
+        #        {"type": "mrkdwn", "text": paper_categories}
+        #    ]
+        #else:
+        result['type'] = "section"
+        result['text'] = {"type": "mrkdwn", "text": paper_title}
+        result['fields'] = [
+            {"type": "mrkdwn", "text": "*Date*"},
+            {"type": "mrkdwn", "text": "*Authors*"},
+            {"type": "mrkdwn", "text": paper_date},
+            {"type": "mrkdwn", "text": paper_authors},
+            {"type": "mrkdwn", "text": "*Category*"},
+            {"type": "mrkdwn", "text": " "},
+            {"type": "mrkdwn", "text": paper_categories}
+        ]
 
         result2["type"] = "section"
         result2['text'] = {"type": "mrkdwn", "text": paper_summary}
