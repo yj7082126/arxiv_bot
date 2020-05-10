@@ -40,6 +40,14 @@ def send_help(user_id, channel):
     response = slack_web_client.chat_postMessage(**message)
     assert response["ok"]
 
+def send_semantic(user_id, channel, arxiv_id):
+    arxivParser = ArxivParser(channel, False)
+    arxivParser.parse_from_semantic(arxiv_id)
+    message = arxivParser.convert_semantic()
+    response = slack_web_client.chat_postMessage(**message)
+    assert response["ok"]
+
+
 @slack_events_adapter.on("message")
 def message(payload):
     event = payload.get("event", {})
@@ -69,6 +77,12 @@ def message(payload):
 
             return send_arxiv(user_id, channel_id, categories, keywords_or,
                               keywords_and, conferences, is_compact, max_results)
+        elif text[0] == "semantic_search":
+            if len(text) == 2:
+                id = text[1]
+                return send_semantic(user_id, channel_id, id)
+
+
 
 if __name__ == "__main__":
     ssl_context = ssl_lib.create_default_context(cafile=certifi.where())

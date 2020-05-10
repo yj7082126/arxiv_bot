@@ -4,6 +4,7 @@ import time
 import pandas as pd
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+import json
 
 class ArxivParser:
 
@@ -133,6 +134,32 @@ arxiv api를 사용하여 논문 검색 결과를 채널에 포스팅합니다.
         soup = BeautifulSoup(text, "html.parser")
         self.info = soup.find_all('entry')
 
+    def parse_from_semantic(self, arxiv_id):
+        parse_url = "https://api.semanticscholar.org/v1/paper/arxiv:{}".format(arxiv_id)
+        content = urlopen(parse_url)
+        self.info = json.loads(content.read())
+
+    def convert_semantic(self):
+        result = dict()
+        if "error" in self.info.keys():
+            result['type'] = "section"
+            result['text'] = {"type": "mrkdwn", "text": "Sorry. No results."}
+        else:
+            result['type'] = "section"
+            result['text'] = {"type": "mrkdwn", "text": "*" + self.info["title"] + "*\n" + ", ".join([x["topic"] for x in self.info["topics"]])}
+            result['fields'] = [
+                {"type": "mrkdwn", "text": "*Citation Velocity*"},
+                {"type": "mrkdwn", "text": "*Influential Citation Count*"},
+                {"type": "mrkdwn", "text": str(self.info["citationVelocity"])},
+                {"type": "mrkdwn", "text": str(self.info["influentialCitationCount"])},
+            ]
+        return {
+            "ts": self.timestamp,
+            "channel": self.channel,
+            "username": self.username,
+            "blocks": [result],
+        }
+
     def create_json(self, max_results = 5):
         divider_block = {"type":"divider"}
         blocks = [divider_block]
@@ -170,6 +197,7 @@ arxiv api를 사용하여 논문 검색 결과를 채널에 포스팅합니다.
         paper_comment = "" if len(paper_comment) == 0 else paper_comment[0].text.replace("\n", "")
         paper_title += paper_comment
 
+        paper_id = val.id.text.split("/")[-1]
         paper_published = datetime.strptime(val.published.text, "%Y-%m-%dT%H:%M:%SZ")
         paper_published = int(time.mktime(paper_published.timetuple()))
         paper_published = "<!date^%d^Published {date_num} {time_secs}|Date unknown>"%(paper_published)
@@ -200,13 +228,14 @@ arxiv api를 사용하여 논문 검색 결과를 채널에 포스팅합니다.
         result['type'] = "section"
         result['text'] = {"type": "mrkdwn", "text": paper_title}
         result['fields'] = [
+            {"type": "mrkdwn", "text": "*Id*"},
+            {"type": "mrkdwn", "text": "*Category*"},
+            {"type": "mrkdwn", "text": paper_id},
+            {"type": "mrkdwn", "text": paper_categories},
             {"type": "mrkdwn", "text": "*Date*"},
             {"type": "mrkdwn", "text": "*Authors*"},
             {"type": "mrkdwn", "text": paper_date},
-            {"type": "mrkdwn", "text": paper_authors},
-            {"type": "mrkdwn", "text": "*Category*"},
-            {"type": "mrkdwn", "text": " "},
-            {"type": "mrkdwn", "text": paper_categories}
+            {"type": "mrkdwn", "text": paper_authors}
         ]
 
         result2["type"] = "section"
@@ -233,5 +262,3 @@ arxiv api를 사용하여 논문 검색 결과를 채널에 포스팅합니다.
         row = [paper_id, paper_title, paper_updated, paper_published, paper_authors,
                paper_categories, paper_comment, paper_summary]
         return row
-
-#%%
